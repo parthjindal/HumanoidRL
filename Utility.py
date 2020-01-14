@@ -5,8 +5,7 @@ import numpy as np
 
 class Utility:
 
-    def __init_(self):
-
+    def __init_(self, freq):
         self.jointIndex = {
             'LHipYawPitch': (13, 0),
             'LHipRoll': (14, 1),
@@ -29,14 +28,11 @@ class Utility:
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
         }
-
         self.jointPos = np.zeros((len(self.jointIndex), 3))
         self.jointVel = np.zeros((len(self.jointIndex), 3))
         self.jointF = np.zeros((len(self.jointIndex), 3))
         self.jointT = np.zeros((len(self.jointIndex), 3))
-
         self.body = np.zeros((2, 3))
-
         self.nao = None
 
     def init_bot(self, freq, ep_length):
@@ -57,3 +53,21 @@ class Utility:
         self.timeStep = 1./freq
 
     # def make_observation(self) :
+
+    def execute_frame(self, action):
+        try:
+            for joint,index in self.jointIndex.items():
+                pos = (np.pi / 2.) * action[index]
+                p.setJointMotorControl2(
+                    self.nao, joint, p.POSITION_CONTROL, targetPosition=pos)
+            p.stepSimulation()
+            time.sleep(self.timeStep)
+        except Exception as e:
+            return False
+        return True
+
+    def kill_bot(self):
+        p.disconnect()
+
+
+
