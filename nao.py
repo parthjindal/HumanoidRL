@@ -30,10 +30,11 @@ nao = p.loadURDF(
 # for all joints set the way of controlling them to position control which means you tell it to be at an angle and it'll go there via an internal PID controller. There are also other ways of controlling each joint
 for i in range(p.getNumJoints(nao)):
     info = p.getJointInfo(nao, i)
-    #print(info [0],info[1])
+    print(info [0],info[1])
     p.setJointMotorControl2(
         nao, i, p.POSITION_CONTROL, targetPosition=0, force=1000)
 
+# x = input()
 # get info from all joints (if you want to actuate more joints than only his head and left leg, then you need to go over this list and find the numbers of the other joints, like 59 right elbow
 for i in range(p.getNumJoints(nao)):
     print(p.getJointInfo(nao, i))

@@ -38,3 +38,22 @@ class Utility:
         self.body = np.zeros((2, 3))
 
         self.nao = None
+
+    def init_bot(self, freq, ep_length):
+
+        p.connect(p.GUI)
+        p.setTimeOut(ep_length)
+        p.setGravity(0, 0, -10)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        p.loadURDF("plane.urdf")
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+
+        startPos = [0, 0, .35]
+        self.nao = p.loadURDF(
+            "humanoid/nao.urdf",
+            startPos,
+            flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
+        
+        self.timeStep = 1./freq
+
+    # def make_observation(self) :
