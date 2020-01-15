@@ -31,17 +31,16 @@ class Utility:
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
         }
-        self.bodyIndex = 0
-
-        self.jointPos = np.zeros((len(self.jointIndex), 3))
-        self.jointVel = np.zeros((len(self.jointIndex), 3))
+        
+        self.jointPos = np.zeros((len(self.jointIndex), 1))
+        self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
         self.jointT = np.zeros((len(self.jointIndex), 3))
 
         self.bodyPos = np.zeros((1, 3))
+        self.bodyAng = np.zeros((1, 3))
         self.bodyVel = np.zeros((1, 3))
-        self.bodyF = np.zeros((1, 3))
-        self.bodyT = np.zeros((1, 3))
+        self.bodyAngVel = np.zeros((1, 3))
 
         self.nao = None
 
@@ -49,7 +48,7 @@ class Utility:
 
         p.connect(p.GUI)
         p.setTimeOut(ep_length)
-        p.setGravity(0, 0, -10)
+        p.setGravity(0, 0, -9.8)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
@@ -98,47 +97,46 @@ class Utility:
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
-            temp = p.getJointState(index[0])
+            temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
             self.jointVel[index[1], :] = temp[1]
             self.jointF[index[1], :] = temp[2][:3]
             self.jointT[index[1], :] = temp[2][:-3]
 
-        temp = p.getJointState(self.bodyIndex)
-
-        self.bodyPos[index[1], :] = temp[0]
-        self.bodyVel[index[1], :] = temp[1]
-        self.bodyF[index[1], :] = temp[2][:3]
-        self.bodyT[index[1], :] = temp[2][:-3]
+        self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
+        self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
+        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
     def kill_bot(self):
         p.disconnect()
 
 
-# temp = Utility()
-# temp.init_bot(50, 1000)
-# x = input()
+temp = Utility()
+temp.init_bot(50, 1000)
+def read_from_pickle(path):
+    poses = []
+    with open(path, 'rb') as file:
+        while True:
+            try:
+                poses.append(pickle.load(file))
+            except EOFError:
+                break
+    return poses
+path = "walk_positions.pckl"
+poses = read_from_pickle(path)[0]
 
+for configs in poses:
+    action = [configs[6], configs[1], configs[10], configs[2], configs[18], configs[12], configs[8], configs[4], configs[5], configs[14],
+              configs[0], configs[11], configs[19], configs[13], configs[9], configs[15], configs[3], configs[7], configs[16], configs[17]]
 
-# def read_from_pickle(path):
-#     poses = []
-#     with open(path, 'rb') as file:
-#         while True:
-#             try:
-#                 poses.append(pickle.load(file))
-#             except EOFError:
-#                 break
+    temp.execute_frame(action)
+    temp.update_joints()
+    print("bodyPos\n", temp.bodyPos, "\n")
+    print("bodyAng\n", temp.bodyAng, "\n")
+    print("bodyVel\n", temp.bodyVel, "\n")
+    print("bodyAngVel\n", temp.bodyAngVel, "\n")
 
-#     return poses
-
-
-# path = "walk_positions.pckl"
-
-# poses = read_from_pickle(path)[0]
-
-# for configs in poses:
-
-#     action = [configs[6], configs[1], configs[10], configs[2], configs[18], configs[12], configs[8], configs[4], configs[5], configs[14],
-#               configs[0], configs[11], configs[19], configs[13], configs[9], configs[15], configs[3], configs[7], configs[16], configs[17]]
-
-#     temp.execute_frame(action)
+    print("jointPos\n", temp.jointPos, "\n")
+    print("jointVel\n", temp.jointVel, "\n")
+    print("jointF\n", temp.jointF, "\n")
+    print("jointT\n", temp.jointT, "\n")

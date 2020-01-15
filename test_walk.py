@@ -1,7 +1,9 @@
+import math
 import pybullet as p
 import pybullet_data
 import time
 import pickle
+
 
 def read_from_pickle(path):
     poses = []
@@ -13,6 +15,7 @@ def read_from_pickle(path):
                 break
 
     return poses
+
 
 path = "walk_positions.pckl"
 
@@ -33,8 +36,8 @@ p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
 # load teh nao model at this position
 
-#flags can also use p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
-#don't use URDF_USE_SELF_COLLISION, since some connected body parts overlap
+# flags can also use p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
+# don't use URDF_USE_SELF_COLLISION, since some connected body parts overlap
 nao = p.loadURDF(
     "humanoid/nao.urdf",
     startPos,
@@ -99,23 +102,34 @@ controlled_joints = [
     'LShoulderPitch']
 
 temp = {}
+for i in range(p.getNumJoints(nao)):
+
+    l = p.getJointInfo(nao, i)
+    name = l[1].decode('utf-8')
+    print(name)
+    if(name == "Gyrometer_sensor_fixedjoint"):
+        print(i,"heyeh")
+        x = input()
 
 for joint in controlled_joints:
     for i in range(p.getNumJoints(nao)):
         l = p.getJointInfo(nao, i)
         name = l[1].decode('utf-8')
-        if(name==joint):
-            print("here info = ", l)
+        if(name == joint):
+            # print("here info = ", l)
             # x = input()
             motors.append(i)
             temp[name] = i
             break
+        if(name == "Gyrometer_sensor_fixedjoint"):
+            print(i)
+            x = input()
 
-print("motors = ", motors)
+# print("motors = ", motors)
 poses = read_from_pickle(path)[0]
 
-temp1 = {k:v for k,v in sorted(temp.items(),key =  lambda x: x[1])} 
-print(temp1)
+temp1 = {k: v for k, v in sorted(temp.items(), key=lambda x: x[1])}
+# print(temp1)
 # set the simulator frequency to 240Hz. In practice that's a lot. I'd go higher than 50Hz (stability) and probably around 100Hz (good accuracy-speed tradeoff)
 timeStep = 0.01
 p.setTimeStep(timeStep)
@@ -125,9 +139,9 @@ for configs in poses:
     # input("here ")
     for j in range(len(motors)):
         p.setJointMotorControl2(
-            nao, motors[j], p.POSITION_CONTROL, targetPosition=configs[j], force = 1000)
+            nao, motors[j], p.POSITION_CONTROL, targetPosition=configs[j], force=1000)
     p.stepSimulation()
-
+    print(p.getBasePositionAndOrientation(nao))
     time.sleep(timeStep)
 #################################################################################################
 
@@ -136,7 +150,6 @@ motors = [1, 2, 13, 14, 15, 16, 17, 18]
 debugParams = []
 # motors = [7, 8, 9, 10, 11, 12]
 
-import math
 
 # make it so that  for each one of the motors we add a slider to we can test each motor
 for i in range(len(motors)):
@@ -150,7 +163,4 @@ while (1):
         p.setJointMotorControl2(
             nao, motors[j], p.POSITION_CONTROL, targetPosition=pos)
     p.stepSimulation()
-
     time.sleep(timeStep)
-
-
