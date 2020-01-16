@@ -36,8 +36,9 @@ for i in range(p.getNumJoints(nao)):
 
 # x = input()
 # get info from all joints (if you want to actuate more joints than only his head and left leg, then you need to go over this list and find the numbers of the other joints, like 59 right elbow
-for i in range(p.getNumJoints(nao)):
-    print(p.getJointInfo(nao, i))
+# for i in range(p.getNumJoints(nao)):
+a = p.getJointInfo(nao, 13)
+print(a)
 
 # turn rendering back on
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)

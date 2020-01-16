@@ -30,8 +30,7 @@ class Utility:
             'RShoulderRoll': (57, 17),
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
-        }
-        
+        }   
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
@@ -48,14 +47,14 @@ class Utility:
 
         p.connect(p.GUI)
         p.setTimeOut(ep_length)
-        p.setGravity(0, 0, -9.8)
+        p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
         startPos = [0, 0, .35]
         self.nao = p.loadURDF(
-            "humanoid/nao.urdf",
+            "/home/taapas/KRSSG/HumanoidRL/humanoid/nao.urdf",
             startPos,
             flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
@@ -95,48 +94,43 @@ class Utility:
             return False
         return True
 
+###Delete get_observation once update joints ios updated.
+    def get_observation(self):
+        self.observation = np.zeros([20, 20])
+
+        for joint, index in self.jointIndex.items():
+            l = p.getJointInfo(self.nao, index[0])
+            l = list(l)
+            a = list(l[13])
+            b = list(l[14])
+            c = list(l[15])
+            l.remove(l[0])
+            l.remove(l[0])
+            l.remove(l[10])
+            l.remove(l[10])
+            l.remove(l[10])
+            l.remove(l[10])
+            for i in range(3):
+                l.append(a[i])
+            for i in range(3):
+                l.append(b[i])
+            for i in range(3):
+                l.append(c[i])
+            print(len(l))
+            self.observation[index[1]] = [x for x in l]
+
     def update_joints(self):
         for joint, index in self.jointIndex.items():
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
             self.jointVel[index[1], :] = temp[1]
+            print("temp", temp[1])
             self.jointF[index[1], :] = temp[2][:3]
             self.jointT[index[1], :] = temp[2][:-3]
 
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
-        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
+        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)  
 
     def kill_bot(self):
         p.disconnect()
-
-
-temp = Utility()
-temp.init_bot(50, 1000)
-def read_from_pickle(path):
-    poses = []
-    with open(path, 'rb') as file:
-        while True:
-            try:
-                poses.append(pickle.load(file))
-            except EOFError:
-                break
-    return poses
-path = "walk_positions.pckl"
-poses = read_from_pickle(path)[0]
-
-for configs in poses:
-    action = [configs[6], configs[1], configs[10], configs[2], configs[18], configs[12], configs[8], configs[4], configs[5], configs[14],
-              configs[0], configs[11], configs[19], configs[13], configs[9], configs[15], configs[3], configs[7], configs[16], configs[17]]
-
-    temp.execute_frame(action)
-    temp.update_joints()
-    print("bodyPos\n", temp.bodyPos, "\n")
-    print("bodyAng\n", temp.bodyAng, "\n")
-    print("bodyVel\n", temp.bodyVel, "\n")
-    print("bodyAngVel\n", temp.bodyAngVel, "\n")
-
-    print("jointPos\n", temp.jointPos, "\n")
-    print("jointVel\n", temp.jointVel, "\n")
-    print("jointF\n", temp.jointF, "\n")
-    print("jointT\n", temp.jointT, "\n")
