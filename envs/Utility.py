@@ -2,7 +2,6 @@ import pybullet as p
 import pybullet_data
 import numpy as np
 import time
-import pickle
 
 
 class Utility:
@@ -116,7 +115,6 @@ class Utility:
                 l.append(b[i])
             for i in range(3):
                 l.append(c[i])
-            print(len(l))
             self.observation[index[1]] = [x for x in l]
 
     def update_joints(self):
@@ -124,7 +122,6 @@ class Utility:
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
             self.jointVel[index[1], :] = temp[1]
-            print("temp", temp[1])
             self.jointF[index[1], :] = temp[2][:3]
             self.jointT[index[1], :] = temp[2][:-3]
 

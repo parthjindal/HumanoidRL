@@ -1,4 +1,6 @@
-from humanoidRL import HumanoidEnv
+import humaniodRL as env
+import Utility
+import pickle
 
 def read_from_pickle(path):
     poses = []
@@ -14,7 +16,7 @@ path = "walk_positions.pckl"
 poses = read_from_pickle(path)[0]
 
 
-a = HumanoidEnv()
+a = env.HumanoidEnv()
 a.reset()   
 
 for configs in poses:

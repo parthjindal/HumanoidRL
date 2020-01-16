@@ -43,7 +43,7 @@ class HumanoidEnv(gym.Env):
 
     def step(self, action):
         self.Nao.execute_frame(action)    
-        self.observation = self.get_observation()
+        self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
         reward = 0
@@ -57,7 +57,7 @@ class HumanoidEnv(gym.Env):
         self.Nao.init_joints()
         self.episode_over = False
         self.episode_steps = 0
-        return self.get_observation()
+        return self.Nao.get_observation()
 
     def render(self, mode='human', close=False):
         pass 
