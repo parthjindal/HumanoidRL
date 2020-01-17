@@ -46,15 +46,17 @@ def test_utility():
                   configs[16], configs[17]]
     Bot.execute_frame(action)
     Bot.update_joints()
-    print("bodyPos\n", Bot.bodyPos, "\n")
-    print("bodyAng\n", Bot.bodyAng, "\n")
-    print("bodyVel\n", Bot.bodyVel, "\n")
-    print("bodyAngVel\n", Bot.bodyAngVel, "\n")
+    Bot.get_observation()
+    print(Bot.observation)
+    # print("bodyPos\n", Bot.bodyPos, "\n")
+    # print("bodyAng\n", Bot.bodyAng, "\n")
+    # print("bodyVel\n", Bot.bodyVel, "\n")
+    # print("bodyAngVel\n", Bot.bodyAngVel, "\n")
 
-    print("jointPos\n", Bot.jointPos, "\n")
-    print("jointVel\n", Bot.jointVel, "\n")
-    print("jointF\n", Bot.jointF, "\n")
-    print("jointT\n", Bot.jointT, "\n")
+    # print("jointPos\n", Bot.jointPos, "\n")
+    # print("jointVel\n", Bot.jointVel, "\n")
+    # print("jointF\n", Bot.jointF, "\n")
+    # print("jointT\n", Bot.jointT, "\n")
 
 
 def main():

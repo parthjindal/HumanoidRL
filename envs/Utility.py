@@ -35,11 +35,12 @@ class Utility:
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
         self.jointT = np.zeros((len(self.jointIndex), 3))
+        self.appliedT = np.zeros((len(self.jointIndex), 1))
         self.bodyPos = np.zeros((1, 3))
         self.bodyAng = np.zeros((1, 3))
         self.bodyVel = np.zeros((1, 3))
         self.bodyAngVel = np.zeros((1, 3))
-        self.jointObservations = np.zeros((20, 21))
+        self.observation = np.empty((len(self.jointIndex)+1, 12))
         self.nao = None
 
     def init_bot(self, freq, ep_length):
@@ -53,7 +54,7 @@ class Utility:
 
         startPos = [0, 0, .35]
         path = os.path.join(os.path.dirname(
-               os.path.realpath(__file__)), "../humanoid/nao.urdf")
+            os.path.realpath(__file__)), "../humanoid/nao.urdf")
         self.nao = p.loadURDF(path, startPos,
                               flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
@@ -94,27 +95,12 @@ class Utility:
         return True
 
     def get_observation(self):
-        self.observation = np.zeros([20, 20])
 
-        for joint, index in self.jointIndex.items():
-            l = p.getJointInfo(self.nao, index[0])
-            l = list(l)
-            a = list(l[13])
-            b = list(l[14])
-            c = list(l[15])
-            l.remove(l[0])
-            l.remove(l[0])
-            l.remove(l[10])
-            l.remove(l[10])
-            l.remove(l[10])
-            l.remove(l[10])
-            for i in range(3):
-                l.append(a[i])
-            for i in range(3):
-                l.append(b[i])
-            for i in range(3):
-                l.append(c[i])
-            self.observation[index[1]] = [x for x in l]
+        self.update_joints()
+        self.observation[:len(self.jointIndex), :] = np.hstack(
+            (self.jointPos, self.jointVel, self.jointF, self.jointT, self.appliedT, np.full((len(self.jointIndex),3),None)))
+        self.observation[len(self.jointIndex), :] = np.vstack(
+            np.hstack((self.bodyPos, self.bodyVel, self.bodyAng, self.bodyAngVel)))
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
@@ -123,6 +109,7 @@ class Utility:
             self.jointVel[index[1], :] = temp[1]
             self.jointF[index[1], :] = temp[2][:3]
             self.jointT[index[1], :] = temp[2][:-3]
+            self.appliedT[index[1], :] = temp[3]
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
