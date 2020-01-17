@@ -2,6 +2,7 @@ import pybullet as p
 import pybullet_data
 import numpy as np
 import time
+import os
 
 
 class Utility:
@@ -29,17 +30,16 @@ class Utility:
             'RShoulderRoll': (57, 17),
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
-        }   
+        }
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
         self.jointT = np.zeros((len(self.jointIndex), 3))
-
         self.bodyPos = np.zeros((1, 3))
         self.bodyAng = np.zeros((1, 3))
         self.bodyVel = np.zeros((1, 3))
         self.bodyAngVel = np.zeros((1, 3))
-
+        self.jointObservations = np.zeros((20, 21))
         self.nao = None
 
     def init_bot(self, freq, ep_length):
@@ -52,10 +52,10 @@ class Utility:
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
         startPos = [0, 0, .35]
-        self.nao = p.loadURDF(
-            "/home/taapas/KRSSG/HumanoidRL/humanoid/nao.urdf",
-            startPos,
-            flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
+        path = os.path.join(os.path.dirname(
+               os.path.realpath(__file__)), "../humanoid/nao.urdf")
+        self.nao = p.loadURDF(path, startPos,
+                              flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
         self.init_joints()
 
@@ -65,21 +65,21 @@ class Utility:
 
     def init_joints(self):
         for joint, index in self.jointIndex.items():
-            p.setJointMotorControl2(
-                self.nao, index[0], p.POSITION_CONTROL, targetPosition=0, force=1000)
+            p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
+                                    targetPosition=0, force=1000)
             p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
 
         shoulderPitch = np.pi / 2.
         shoulderRoll = 0.1
 
-        p.setJointMotorControl2(
-            self.nao, 56, p.POSITION_CONTROL, targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(
-            self.nao, 39, p.POSITION_CONTROL, targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(
-            self.nao, 57, p.POSITION_CONTROL, targetPosition=-shoulderRoll, force=1000)
-        p.setJointMotorControl2(
-            self.nao, 40, p.POSITION_CONTROL, targetPosition=shoulderRoll, force=1000)
+        p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
+                                targetPosition=shoulderPitch, force=1000)
+        p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
+                                targetPosition=shoulderPitch, force=1000)
+        p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
+                                targetPosition=-shoulderRoll, force=1000)
+        p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
+                                targetPosition=shoulderRoll, force=1000)
 
     def execute_frame(self, action):
         try:
@@ -93,7 +93,6 @@ class Utility:
             return False
         return True
 
-###Delete get_observation once update joints ios updated.
     def get_observation(self):
         self.observation = np.zeros([20, 20])
 
@@ -124,10 +123,9 @@ class Utility:
             self.jointVel[index[1], :] = temp[1]
             self.jointF[index[1], :] = temp[2][:3]
             self.jointT[index[1], :] = temp[2][:-3]
-
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
-        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)  
+        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
     def kill_bot(self):
         p.disconnect()

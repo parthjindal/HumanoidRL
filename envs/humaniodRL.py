@@ -3,6 +3,7 @@ import gym
 from gym import spaces
 import numpy as np
 
+
 class HumanoidEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     def __init__(self):
@@ -30,19 +31,18 @@ class HumanoidEnv(gym.Env):
             'RElbowRoll': (-10, 10)
         }
         jointLimit = list(self.jointLimits.values())
-        self.Nao  = None
-        self.freq = 240 
+        self.Nao = None
+        self.freq = 240
         self.force_motor = 1000
         self.action_space = spaces.Box(
             low=np.array([limit[0] for limit in jointLimit]),
             high=np.array([limit[1] for limit in jointLimit]))
         high = 10 * np.ones([20, 20])
         low = -high
-        self.observation_space = spaces.Box(low=low, high=high)    
-
+        self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, action):
-        self.Nao.execute_frame(action)    
+        self.Nao.execute_frame(action)
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
@@ -60,4 +60,4 @@ class HumanoidEnv(gym.Env):
         return self.Nao.get_observation()
 
     def render(self, mode='human', close=False):
-        pass 
+        pass
