@@ -95,12 +95,13 @@ class Utility:
         return True
 
     def get_observation(self):
-
         self.update_joints()
         self.observation[:len(self.jointIndex), :] = np.hstack(
-            (self.jointPos, self.jointVel, self.jointF, self.jointT, self.appliedT, np.full((len(self.jointIndex),3),None)))
+            (self.jointPos, self.jointVel, self.jointF, self.jointT,
+             self.appliedT, np.full((len(self.jointIndex), 3), None)))
         self.observation[len(self.jointIndex), :] = np.vstack(
-            np.hstack((self.bodyPos, self.bodyVel, self.bodyAng, self.bodyAngVel)))
+            np.hstack((self.bodyPos, self.bodyVel, self.bodyAng,
+                       self.bodyAngVel)))
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
@@ -113,6 +114,17 @@ class Utility:
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
+
+    def getactionHighsLows(self):
+        lows = []
+        highs = []
+        for joint, index in self.jointIndex.items():
+            print(index[0])
+            temp = p.getJointInfo(self.nao, index[0])
+            temp = list(temp)
+            lows.append(temp[8])
+            highs.append(temp[9])
+        return (lows, highs)
 
     def kill_bot(self):
         p.disconnect()

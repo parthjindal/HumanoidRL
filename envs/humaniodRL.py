@@ -5,7 +5,7 @@ import numpy as np
 
 
 class HumanoidEnv(gym.Env):
-    """Custom Environment that follows gym interface"""
+    """Humanoid RL Environment for simulation of a NAO-V40"""
     def __init__(self):
 
         self.jointLimits = {
@@ -61,3 +61,8 @@ class HumanoidEnv(gym.Env):
 
     def render(self, mode='human', close=False):
         pass
+
+    def action_lowshighs(self):
+        temp = ut.Utility()
+        lows, highs = temp.getactionHighsLows()
+        return (lows, highs)
