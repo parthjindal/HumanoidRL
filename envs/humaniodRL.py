@@ -7,36 +7,12 @@ import numpy as np
 class HumanoidEnv(gym.Env):
     """Humanoid RL Environment for simulation of a NAO-V40"""
     def __init__(self):
-
-        self.jointLimits = {
-            'LHipYawPitch': (-10, 10),
-            'LHipRoll': (-10, 10),
-            'LHipPitch': (-10, 10),
-            'LKneePitch': (-10, 10),
-            'LAnklePitch': (-10, 10),
-            'LAnkleRoll': (-10, 10),
-            'RHipYawPitch': (-10, 10),
-            'RHipRoll': (-10, 10),
-            'RHipPitch': (-10, 10),
-            'RKneePitch': (-10, 10),
-            'RAnklePitch': (-10, 10),
-            'RAnkleRoll': (-10, 10),
-            'LShoulderPitch': (-10, 10),
-            'LShoulderRoll': (-10, 10),
-            'LElbowYaw': (-10, 10),
-            'LElbowRoll': (-10, 10),
-            'RShoulderPitch': (-10, 10),
-            'RShoulderRoll': (-10, 10),
-            'RElbowYaw': (-10, 10),
-            'RElbowRoll': (-10, 10)
-        }
-        jointLimit = list(self.jointLimits.values())
         self.Nao = None
         self.freq = 240
         self.force_motor = 1000
-        self.action_space = spaces.Box(
-            low=np.array([limit[0] for limit in jointLimit]),
-            high=np.array([limit[1] for limit in jointLimit]))
+        lows, highs = self.action_lowshighs()
+        self.action_space = spaces.Box(low=np.array(lows),
+                                       high=np.array(highs))
         high = 10 * np.ones([20, 20])
         low = -high
         self.observation_space = spaces.Box(low=low, high=high)
