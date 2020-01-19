@@ -1,12 +1,12 @@
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/) 
 
-####NAO V40 pybullets training environment
+# NAO-V40 pybullets training environment
 
-# Description
+### Description
 
 This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is used as the simulationg environment.
 
-#Repository structure
+### Repository structure
 
 ``` shell
 ├── baselines
@@ -32,7 +32,7 @@ This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is us
 
 - Run `humanoidRL.py` script with Python3.
 
-#Testing
+#### Testing
 - `test_script.py` is the testing script for utlity functions and the environment seperately.
 ``` shell
  use python test_script --env=True to test environment
