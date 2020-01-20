@@ -6,9 +6,16 @@ import os
 
 
 class Utility:
-
+    '''
+    Class containing all the helper functions
+    '''
     def __init__(self):
-
+        
+       
+        '''
+        joinIndex
+        - A dictionary mapping Joint name to it's index in urdf file
+        '''
         self.jointIndex = {
             'LHipYawPitch': (13, 0),
             'LHipRoll': (14, 1),
@@ -44,8 +51,15 @@ class Utility:
         self.nao = None
 
     def init_bot(self, freq, ep_length):
+        '''
+        Initialising the paramters of bot and simulation 
 
-        p.connect(p.GUI)
+        INPUT_VARIABLES
+            freq : freq of the simlulation should be arounf 50-100
+            ep_length : length of one episode ( to be used while training )
+
+        '''
+        p.connect(p.GUI) # p.GUI for debug visualizer and p.DIRECT for non graphical version ex. while running on server
         p.setTimeOut(ep_length)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -65,6 +79,12 @@ class Utility:
         self.timeStep = 1./freq
 
     def init_joints(self):
+        '''
+
+        Initialising the starting joint values
+
+        '''    
+
         for joint, index in self.jointIndex.items():
             p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
                                     targetPosition=0, force=1000)
@@ -73,6 +93,7 @@ class Utility:
         shoulderPitch = np.pi / 2.
         shoulderRoll = 0.1
 
+        # this makes the arms hang down and not forward (default pos in the URDF file)
         p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
                                 targetPosition=shoulderPitch, force=1000)
         p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
@@ -83,10 +104,18 @@ class Utility:
                                 targetPosition=shoulderRoll, force=1000)
 
     def execute_frame(self, action):
+        '''
+
+        To take an action on the bot
+
+        INPUT_VARIABLES
+            action : A list containing the final positions of all the joints 
+
+        '''
         try:
             for joint, index in self.jointIndex.items():
                 pos = (np.pi / 2.) * action[index[1]]
-                p.setJointMotorControl2(
+                p.setJointMotorControl2( # Function to move a joint at a specific position
                     self.nao, index[0], p.POSITION_CONTROL, targetPosition=pos)
             p.stepSimulation()
             time.sleep(self.timeStep)
@@ -95,6 +124,12 @@ class Utility:
         return True
 
     def get_observation(self):
+        '''
+
+        Getting the joint values
+
+        '''
+
         self.update_joints()
         self.observation[:len(self.jointIndex), :] = np.hstack(
             (self.jointPos, self.jointVel, self.jointF, self.jointT,
@@ -104,6 +139,7 @@ class Utility:
                        self.bodyAngVel)))
 
     def update_joints(self):
+        
         for joint, index in self.jointIndex.items():
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
@@ -116,6 +152,12 @@ class Utility:
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
     def getactionHighsLows(self):
+        '''
+
+        Getting the action space i.e. min and max possible values to which a joint can move
+
+        '''
+
         lows = []
         highs = []
         for joint, index in self.jointIndex.items():
@@ -127,4 +169,10 @@ class Utility:
         return (lows, highs)
 
     def kill_bot(self):
+        '''
+
+        To disconnect from the server
+
+        '''
+
         p.disconnect()

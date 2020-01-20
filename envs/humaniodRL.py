@@ -1,3 +1,9 @@
+'''
+
+Humanoid RL Environment for simulation of a NAO-V40
+Made according to OpenAI Gym Environments
+
+'''
 import Utility as ut
 import gym
 from gym import spaces
@@ -5,8 +11,12 @@ import numpy as np
 
 
 class HumanoidEnv(gym.Env):
-    """Humanoid RL Environment for simulation of a NAO-V40"""
     def __init__(self):
+        '''
+
+        Initialising bot parameters, action space and observation space of the bot
+
+        '''
         self.Nao = None
         self.freq = 240
         self.force_motor = 1000
@@ -18,6 +28,13 @@ class HumanoidEnv(gym.Env):
         self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, action):
+        '''
+
+        Making the bot moce according to the algorithm and returning observation and reward
+
+    
+        '''
+
         self.Nao.execute_frame(action)
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
@@ -28,6 +45,12 @@ class HumanoidEnv(gym.Env):
         return self.observation, reward, self.episode_over, {}
 
     def reset(self):
+        '''
+
+        Resetting the params after each episode
+
+        '''    
+
         self.Nao = ut.Utility()
         self.Nao.init_bot(self.freq, self.force_motor)
         self.Nao.init_joints()
@@ -39,6 +62,11 @@ class HumanoidEnv(gym.Env):
         pass
 
     def action_lowshighs(self):
+        '''
+        
+        Getting the action space i.e. min and max possible values to which a joint can move
+
+        '''
         temp = ut.Utility()
         lows, highs = temp.getactionHighsLows()
         return (lows, highs)
