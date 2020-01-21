@@ -45,7 +45,7 @@ class Utility:
         self.bodyAng = np.zeros((1, 3))
         self.bodyVel = np.zeros((1, 3))
         self.bodyAngVel = np.zeros((1, 3))
-        self.observation = np.empty((len(self.jointIndex)+1, 3))
+        self.observation = np.empty((len(self.jointIndex)+3, 1))
         self.nao = None
 
     def init_bot(self, freq, ep_length):
@@ -129,9 +129,7 @@ class Utility:
         '''
 
         self.update_joints()
-        self.observation[:len(self.jointIndex), :] = np.hstack(
-            (self.jointPos, np.full((len(self.jointIndex), 2), None)))
-        self.observation[len(self.jointIndex), :] = self.bodyPos
+        self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
 
     def update_joints(self):
         
