@@ -6,6 +6,7 @@ import numpy as np
 
 class HumanoidEnv(gym.Env):
     """Humanoid RL Environment for simulation of a NAO-V40"""
+
     def __init__(self):
         self.Nao = None
         self.freq = 240
@@ -29,7 +30,7 @@ class HumanoidEnv(gym.Env):
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
-        reward = 0
+        reward = self.get_reward()
         self.episode_over = False
 
         return self.observation, reward, self.episode_over, {}
@@ -50,3 +51,25 @@ class HumanoidEnv(gym.Env):
     #     temp.init_bot()
     #     lows, highs = temp.getactionHighsLows()
     #     return (lows, highs)
+
+    def healthy_reward(self):
+        return float(self.is_healthy())*5.0
+
+    def is_healthy(self):
+        min_z, max_z = 0.5, 1.0
+        return (min_z < self.Nao.bodyPos[0][2] < max_z)
+
+    def contact_cost(self):
+        contact_cost = 5e-7*(np.sum(np.square(self.Nao.jointF))+np.sum(np.square(self.Nao.jointT)))
+
+        min_cost, max_cost = -np.inf, 10.0
+        contact_cost = np.clip(contact_cost, min_cost, max_cost)
+        return contact_cost
+
+    def get_reward(self):
+        # TODO : Add control cost as in Mujoco
+        forward_reward = 1.25*self.Nao.bodyVel[0]
+        healthy_reward = self.healthy_reward()
+        contact_cost = self.contact_cost()
+
+        return (forward_reward+healthy_reward-contact_cost)
