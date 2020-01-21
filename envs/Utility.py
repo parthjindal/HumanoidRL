@@ -149,6 +149,9 @@ class Utility:
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
+    def is_connected(self):
+        return (p.getConnectionInfo()['isConnected'])
+
     # def getactionHighsLows(self):
     #     '''
 

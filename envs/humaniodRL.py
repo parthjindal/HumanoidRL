@@ -26,12 +26,15 @@ class HumanoidEnv(gym.Env):
         self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, action):
-        self.Nao.execute_frame(action)
-        self.observation = self.Nao.get_observation()
-        self.episode_steps += 1
-        # reward algo
-        reward = self.get_reward()
-        self.episode_over = False
+        if self.Nao.is_connected():
+            self.Nao.execute_frame(action)
+            self.observation = self.Nao.get_observation()
+            self.episode_steps += 1
+            # reward algo
+            reward = self.get_reward()
+        else:
+            reward = 0
+            self.episode_over = True
 
         return self.observation, reward, self.episode_over, {}
 
