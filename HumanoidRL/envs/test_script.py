@@ -5,7 +5,7 @@ Testing the Utility and Env Class by making the bot moce through the pickel file
 
 '''
 
-import humaniodRL as env
+import humanoidRL as env
 import Utility as ut
 import pickle
 import argparse
