@@ -1,9 +1,3 @@
-'''
-
-Humanoid RL Environment for simulation of a NAO-V40
-Made according to OpenAI Gym Environments
-
-'''
 import Utility as ut
 import gym
 from gym import spaces
@@ -11,16 +5,19 @@ import numpy as np
 
 
 class HumanoidEnv(gym.Env):
+    """Humanoid RL Environment for simulation of a NAO-V40"""
     def __init__(self):
-        '''
-
-        Initialising bot parameters, action space and observation space of the bot
-
-        '''
         self.Nao = None
         self.freq = 240
         self.force_motor = 1000
-        lows, highs = self.action_lowshighs()
+        lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
+                -0.397761, -1.14529, -0.79046, -1.53589, -0.0923279,
+                -1.1863, -0.768992, -2.08567, -0.314159, -2.08567,
+                -1.54462, -2.08567, -1.32645, -2.08567, 0.0349066]
+        highs = [0.740718, 0.79046, 0.48398, 2.11255, 0.922581, 0.768992,
+                 0.740718, 0.379435, 0.48398, 2.11255, 0.932006, 0.397761,
+                 2.08567, 1.32645, 2.08567, -0.0349066, 2.08567, 0.314159,
+                 2.08567, 1.54462]
         self.action_space = spaces.Box(low=np.array(lows),
                                        high=np.array(highs))
         high = 10 * np.ones([20, 20])
@@ -28,13 +25,6 @@ class HumanoidEnv(gym.Env):
         self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, action):
-        '''
-
-        Making the bot moce according to the algorithm and returning observation and reward
-
-    
-        '''
-
         self.Nao.execute_frame(action)
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
@@ -45,12 +35,6 @@ class HumanoidEnv(gym.Env):
         return self.observation, reward, self.episode_over, {}
 
     def reset(self):
-        '''
-
-        Resetting the params after each episode
-
-        '''    
-
         self.Nao = ut.Utility()
         self.Nao.init_bot(self.freq, self.force_motor)
         self.Nao.init_joints()
@@ -61,12 +45,8 @@ class HumanoidEnv(gym.Env):
     def render(self, mode='human', close=False):
         pass
 
-    def action_lowshighs(self):
-        '''
-        
-        Getting the action space i.e. min and max possible values to which a joint can move
-
-        '''
-        temp = ut.Utility()
-        lows, highs = temp.getactionHighsLows()
-        return (lows, highs)
+    # def action_lowshighs(self):
+    #     temp = ut.Utility()
+    #     temp.init_bot()
+    #     lows, highs = temp.getactionHighsLows()
+    #     return (lows, highs)

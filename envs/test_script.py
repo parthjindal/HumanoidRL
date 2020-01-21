@@ -74,7 +74,6 @@ def test_utility():
     Bot.execute_frame(action)
     Bot.update_joints()
     Bot.get_observation()
-    Bot.getactionHighsLows()
     print("Observation:", Bot.observation)
 
 

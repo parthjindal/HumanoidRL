@@ -10,8 +10,6 @@ class Utility:
     Class containing all the helper functions
     '''
     def __init__(self):
-        
-       
         '''
         joinIndex
         - A dictionary mapping Joint name to it's index in urdf file
@@ -151,22 +149,24 @@ class Utility:
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
-    def getactionHighsLows(self):
-        '''
+    # def getactionHighsLows(self):
+    #     '''
 
-        Getting the action space i.e. min and max possible values to which a joint can move
+    #     Getting the action space i.e. min and max possible values to which a joint can move
 
-        '''
+    #     '''
 
-        lows = []
-        highs = []
-        for joint, index in self.jointIndex.items():
-            print(index[0])
-            temp = p.getJointInfo(self.nao, index[0])
-            temp = list(temp)
-            lows.append(temp[8])
-            highs.append(temp[9])
-        return (lows, highs)
+    #     lows = []
+    #     highs = []
+    #     for joint, index in self.jointIndex.items():
+    #         print(index[0])
+    #         print("NONE", self.nao)
+    #         print("NONE", index[0])
+    #         temp = p.getJointInfo(self.nao, index[0])
+    #         temp = list(temp)
+    #         lows.append(temp[8])
+    #         highs.append(temp[9])
+    #     return (lows, highs)
 
     def kill_bot(self):
         '''
