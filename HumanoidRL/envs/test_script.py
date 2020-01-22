@@ -1,9 +1,5 @@
-'''
 
-Script to check the working of other modules
-Testing the Utility and Env Class by making the bot moce through the pickel file
-
-'''
+# Script to check the working of other modules
 
 import humanoidRL as env
 import Utility as ut
@@ -15,14 +11,7 @@ path = "walk_positions.pckl"
 
 
 def read_from_pickle(path):
-    '''
-
-    To read from pickel file
-
-    INPUT_VARIABLES
-        path - path to pickel file
-    '''
-
+    """Reads from pickel file"""
     poses = []
     with open(path, 'rb') as file:
         while True:
@@ -34,12 +23,7 @@ def read_from_pickle(path):
 
 
 def test_env():
-    '''
-
-    To test the HumanoidEnv (Environment) Class
-
-    '''
-
+    """To test the HumanoidEnv (Environment) Class"""
     poses = read_from_pickle(path)[0]
     Bot = env.HumanoidEnv()
     Bot.reset()
@@ -53,14 +37,8 @@ def test_env():
 
 
 def test_utility():
-    '''
-
-    To test the Utility Class
-
-    '''
-
+    """To test the Utility Class"""
     poses = read_from_pickle(path)[0]
-
     Bot = ut.Utility()
     Bot.init_bot(240, 1000)
     Bot.get_observation()
@@ -78,8 +56,7 @@ def test_utility():
 
 
 def main():
-    """
-    use python test_script --env=True to test environment
+    """use python test_script --env=True to test environment
     use python test_script --util=True to test utilities
     """
     parser = argparse.ArgumentParser(description="Test framework")
