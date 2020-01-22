@@ -1,3 +1,4 @@
 test_walk.py
 walk_positions.pckl
 .vscode
+__pycache__
