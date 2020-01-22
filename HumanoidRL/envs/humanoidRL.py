@@ -21,9 +21,11 @@ class HumanoidEnv(gym.Env):
                  2.08567, 1.54462]
         self.action_space = spaces.Box(low=np.array(lows),
                                        high=np.array(highs))
-        high = 10 * np.ones([20, 20])
-        low = -high
-        self.observation_space = spaces.Box(low=low, high=high)
+        lows.extend([-10, -10, -10])
+        highs.extend([10, 10, 10])
+        obs_low = np.array(lows)
+        obs_high = np.array(highs)
+        self.observation_space = spaces.Box(low=obs_low, high=obs_high)
 
     def step(self, action):
         if self.Nao.is_connected():

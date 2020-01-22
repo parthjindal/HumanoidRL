@@ -49,15 +49,14 @@ class Utility:
         self.nao = None
 
     def init_bot(self, freq, ep_length):
-        '''
-        Initialising the paramters of bot and simulation 
-
+        """Initialising the paramters of bot and simulation
         INPUT_VARIABLES
             freq : freq of the simlulation should be arounf 50-100
             ep_length : length of one episode ( to be used while training )
-
-        '''
-        p.connect(p.GUI) # p.GUI for debug visualizer and p.DIRECT for non graphical version ex. while running on server
+        """
+        # p.GUI for debug visualizer and p.DIRECT for non graphical version
+        # ex. while running on server
+        p.connect(p.GUI)
         p.setTimeOut(ep_length)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -71,27 +70,18 @@ class Utility:
                               flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
         self.init_joints()
-
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-
         self.timeStep = 1./freq
 
     def init_joints(self):
-        '''
-
-        Initialising the starting joint values
-
-        '''    
-
+        """Initialising the starting joint values"""
         for joint, index in self.jointIndex.items():
             p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
                                     targetPosition=0, force=1000)
             p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
-
         shoulderPitch = np.pi / 2.
         shoulderRoll = 0.1
-
-        # this makes the arms hang down and not forward (default pos in the URDF file)
+        # this makes the arms hang down and not forward
         p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
                                 targetPosition=shoulderPitch, force=1000)
         p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
@@ -102,18 +92,15 @@ class Utility:
                                 targetPosition=shoulderRoll, force=1000)
 
     def execute_frame(self, action):
-        '''
-
-        To take an action on the bot
-
+        """To take an action on the bot
         INPUT_VARIABLES
-            action : A list containing the final positions of all the joints 
-
-        '''
+            action : A list containing the final positions of all the
+                     joints"""
         try:
             for joint, index in self.jointIndex.items():
                 pos = (np.pi / 2.) * action[index[1]]
-                p.setJointMotorControl2( # Function to move a joint at a specific position
+                # Function to move a joint at a specific position
+                p.setJointMotorControl2(
                     self.nao, index[0], p.POSITION_CONTROL, targetPosition=pos)
             p.stepSimulation()
             time.sleep(self.timeStep)
@@ -122,17 +109,11 @@ class Utility:
         return True
 
     def get_observation(self):
-        '''
-
-        Getting the joint values
-
-        '''
-
+        """Getting the joint values"""
         self.update_joints()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
 
     def update_joints(self):
-        
         for joint, index in self.jointIndex.items():
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
@@ -144,6 +125,7 @@ class Utility:
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
+<<<<<<< HEAD
     def is_connected(self):
         return (p.getConnectionInfo()['isConnected'])
 
@@ -166,11 +148,8 @@ class Utility:
     #         highs.append(temp[9])
     #     return (lows, highs)
 
+=======
+>>>>>>> eb7f61d0779cc2a9eec3211d2caa73c0383a3914
     def kill_bot(self):
-        '''
-
-        To disconnect from the server
-
-        '''
-
+        """To disconnect from the server"""
         p.disconnect()
