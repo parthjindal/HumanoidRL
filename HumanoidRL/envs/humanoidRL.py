@@ -1,4 +1,4 @@
-import Utility as ut
+from HumanoidRL.Utility import Utility as ut
 import gym
 from gym import spaces
 import numpy as np
