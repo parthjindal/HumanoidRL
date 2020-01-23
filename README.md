@@ -25,7 +25,9 @@ This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is us
 │   │   └── nao.urdf
 │   └── __init__.py
 ├── README.md
-└── setup.py
+├── setup.py
+└── spinup_run.py
+
 ```
 - `baselines` contains the reference items.
 - `envs` contains `humanoidRL` script which it the standard Gym environment. `Utility` class contains the basic functions for communicating with the simulator.
@@ -46,3 +48,7 @@ pip install -e .
 - `test_script.py` is the testing script for utlity functions and the environment seperately.
 - Use `python test_script --env=True` to test environment.
 - Use python test_script --util=True` to test utilities.
+
+### Running training
+
+- Run `spinup_run.py`. You need `spinningupai` installed for that.
