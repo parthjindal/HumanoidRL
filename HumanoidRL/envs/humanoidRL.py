@@ -6,6 +6,7 @@ import numpy as np
 
 class HumanoidEnv(gym.Env):
     """Humanoid RL Environment for simulation of a NAO-V40"""
+
     def __init__(self):
         self.Nao = None
         self.freq = 240
@@ -25,6 +26,7 @@ class HumanoidEnv(gym.Env):
         obs_low = np.array(lows)
         obs_high = np.array(highs)
         self.observation_space = spaces.Box(low=obs_low, high=obs_high)
+        self.Nao = ut.Utility()
 
     def step(self, action):
         self.Nao.execute_frame(action)
@@ -32,14 +34,15 @@ class HumanoidEnv(gym.Env):
         self.episode_steps += 1
         # reward algo
         reward = 0
-        self.episode_over = False
+        self.episode_over = False if self.episode_steps < self.force_motor else True
 
         return self.observation, reward, self.episode_over, {}
 
     def reset(self):
-        self.Nao = ut.Utility()
-        self.Nao.init_bot(self.freq, self.force_motor)
-        self.Nao.init_joints()
+        if self.Nao.nao is None:
+            self.Nao.init_bot(self.freq)
+        # self.Nao.init_joints()
+        self.Nao.reset_bot()
         self.episode_over = False
         self.episode_steps = 0
         return self.Nao.get_observation()

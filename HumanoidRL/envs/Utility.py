@@ -48,31 +48,36 @@ class Utility:
         self.observation = np.empty((len(self.jointIndex)+3, 1))
         self.nao = None
 
-    def init_bot(self, freq, ep_length):
+    def init_bot(self, freq):
         """Initialising the paramters of bot and simulation
         INPUT_VARIABLES
             freq : freq of the simlulation should be arounf 50-100
-            ep_length : length of one episode ( to be used while training )
         """
         # p.GUI for debug visualizer and p.DIRECT for non graphical version
         # ex. while running on server
         p.connect(p.GUI)
-        p.setTimeOut(ep_length)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
-        startPos = [0, 0, .35]
+        self.startPos = [0, 0, .35]
         path = os.path.join(os.path.dirname(
             os.path.realpath(__file__)), "../humanoid/nao.urdf")
-        self.nao = p.loadURDF(path, startPos,
+        self.nao = p.loadURDF(path, self.startPos,
                               flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
         self.init_joints()
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
         self.timeStep = 1./freq
 
+    def reset_bot(self):
+
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+        p.resetBasePositionAndOrientation(self.nao, self.startPos, p.getQuaternionFromEuler([0,0,0]))
+        self.init_joints()
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
+        
     def init_joints(self):
         """Initialising the starting joint values"""
         for joint, index in self.jointIndex.items():
@@ -96,17 +101,13 @@ class Utility:
         INPUT_VARIABLES
             action : A list containing the final positions of all the
                      joints"""
-        try:
-            for joint, index in self.jointIndex.items():
-                pos = (np.pi / 2.) * action[index[1]]
-                # Function to move a joint at a specific position
-                p.setJointMotorControl2(
-                    self.nao, index[0], p.POSITION_CONTROL, targetPosition=pos)
-            p.stepSimulation()
-            time.sleep(self.timeStep)
-        except Exception as e:
-            return False
-        return True
+        for joint, index in self.jointIndex.items():
+            pos = (np.pi / 2.) * action[index[1]]
+            # Function to move a joint at a specific position
+            p.setJointMotorControl2(
+                self.nao, index[0], p.POSITION_CONTROL, targetPosition=pos)
+        p.stepSimulation()
+        time.sleep(self.timeStep)
 
     def get_observation(self):
         """Getting the joint values"""
