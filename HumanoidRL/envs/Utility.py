@@ -15,26 +15,26 @@ class Utility:
         - A dictionary mapping Joint name to it's index in urdf file
         '''
         self.jointIndex = {
-            'LHipYawPitch': (13, 0),
-            'LHipRoll': (14, 1),
-            'LHipPitch': (15, 2),
-            'LKneePitch': (16, 3),
-            'LAnklePitch': (17, 4),
-            'LAnkleRoll': (18, 5),
-            'RHipYawPitch': (26, 6),
-            'RHipRoll': (27, 7),
-            'RHipPitch': (28, 8),
-            'RKneePitch': (29, 9),
-            'RAnklePitch': (30, 10),
-            'RAnkleRoll': (31, 11),
-            'LShoulderPitch': (39, 12),
-            'LShoulderRoll': (40, 13),
-            'LElbowYaw': (41, 14),
-            'LElbowRoll': (42, 15),
-            'RShoulderPitch': (56, 16),
-            'RShoulderRoll': (57, 17),
-            'RElbowYaw': (58, 18),
-            'RElbowRoll': (59, 19)
+#            'LHipYawPitch': (13, 0),
+#            'LHipRoll': (14, 1),
+#            'LHipPitch': (15, 2),
+#            'LKneePitch': (16, 3),
+#            'LAnklePitch': (17, 4),
+#            'LAnkleRoll': (18, 5),
+#            'RHipYawPitch': (26, 6),
+#            'RHipRoll': (27, 7),
+#            'RHipPitch': (28, 8),
+#            'RKneePitch': (29, 9),
+#            'RAnklePitch': (30, 10),
+#            'RAnkleRoll': (31, 11),
+            'LShoulderPitch': (39, 0),
+#            'LShoulderRoll': (40, 13),
+#            'LElbowYaw': (41, 14),
+#            'LElbowRoll': (42, 15),
+            'RShoulderPitch': (56, 1),
+#            'RShoulderRoll': (57, 17),
+#            'RElbowYaw': (58, 18),
+#            'RElbowRoll': (59, 19)
         }
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
@@ -46,6 +46,7 @@ class Utility:
         self.bodyVel = np.zeros((1, 3))
         self.bodyAngVel = np.zeros((1, 3))
         self.observation = np.empty((len(self.jointIndex)+3, 1))
+        self.motor_force = 1000
         self.nao = None
 
     def init_bot(self, freq):
@@ -56,7 +57,7 @@ class Utility:
         # p.GUI for debug visualizer and p.DIRECT for non graphical version
         # ex. while running on server
         p.connect(p.GUI)
-        p.setGravity(0, 0, -9.81)
+        p.setGravity(0, 0, -90.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
@@ -82,19 +83,19 @@ class Utility:
         """Initialising the starting joint values"""
         for joint, index in self.jointIndex.items():
             p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
-                                    targetPosition=0, force=1000)
+                                    targetPosition=0, force=self.motor_force)
             p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
         shoulderPitch = np.pi / 2.
         shoulderRoll = 0.1
         # this makes the arms hang down and not forward
         p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
+                                targetPosition=shoulderPitch, force=self.motor_force)
         p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
+                                targetPosition=shoulderPitch, force=self.motor_force)
         p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
-                                targetPosition=-shoulderRoll, force=1000)
+                                targetPosition=-shoulderRoll, force=self.motor_force)
         p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
-                                targetPosition=shoulderRoll, force=1000)
+                                targetPosition=shoulderRoll, force=self.motor_force)
 
     def execute_frame(self, action):
         """To take an action on the bot
@@ -105,7 +106,8 @@ class Utility:
             pos = (np.pi / 2.) * action[index[1]]
             # Function to move a joint at a specific position
             p.setJointMotorControl2(
-                self.nao, index[0], p.POSITION_CONTROL, targetPosition=pos)
+                self.nao, index[0], p.POSITION_CONTROL,
+                targetPosition=pos, force=self.motor_force)
         p.stepSimulation()
         time.sleep(self.timeStep)
 
@@ -113,19 +115,23 @@ class Utility:
         """Getting the joint values"""
         self.update_joints()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
-        return self.observation.T
+        a = []
+        a.append(self.observation[0])
+        a.append(self.observation[1])
+        a = np.array(a).reshape(-1, 1)
+        return a.T
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
-            self.jointVel[index[1], :] = temp[1]
-            self.jointF[index[1], :] = temp[2][:3]
-            self.jointT[index[1], :] = temp[2][:-3]
-            self.appliedT[index[1], :] = temp[3]
+#            self.jointVel[index[1], :] = temp[1]
+#            self.jointF[index[1], :] = temp[2][:3]
+#            self.jointT[index[1], :] = temp[2][:-3]
+#            self.appliedT[index[1], :] = temp[3]
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
-        self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
-        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
+#        self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
+#d        self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
 
     def kill_bot(self):
         """To disconnect from the server"""

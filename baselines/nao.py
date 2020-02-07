@@ -20,9 +20,9 @@ p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 # load teh nao model at this position
 
 #flags can also use p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
-#don't use URDF_USE_SELF_COLLISION, since some connected body parts overlap
+#don't use URDFpyt_USE_SELF_COLLISION, since some connected body parts overlap
 nao = p.loadURDF(
-    "humanoid/nao.urdf",
+    "nao.urdf",
     startPos,
     flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
@@ -54,10 +54,10 @@ p.setJointMotorControl2(
     nao, 56, p.POSITION_CONTROL, targetPosition=shoulderPitch, force=1000)
 p.setJointMotorControl2(
     nao, 39, p.POSITION_CONTROL, targetPosition=shoulderPitch, force=1000)
-p.setJointMotorControl2(
-    nao, 57, p.POSITION_CONTROL, targetPosition=-shoulderRoll, force=1000)
-p.setJointMotorControl2(
-    nao, 40, p.POSITION_CONTROL, targetPosition=shoulderRoll, force=1000)
+#p.setJointMotorControl2(
+#    nao, 57, p.POSITION_CONTROL, targetPosition=-shoulderRoll, force=1000)
+#p.setJointMotorControl2(
+#    nao, 40, p.POSITION_CONTROL, targetPosition=shoulderRoll, force=1000)
 
 # this can be anywhere in the file
 p.setGravity(0, 0, -10)

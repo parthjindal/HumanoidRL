@@ -10,7 +10,7 @@ class HumanoidEnv(gym.Env):
     def __init__(self):
         self.Nao = None
         self.freq = 240
-        self.force_motor = 1000
+        self.episode_length = 10000
         lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
                 -0.397761, -1.14529, -0.79046, -1.53589, -0.0923279,
                 -1.1863, -0.768992, -2.08567, -0.314159, -2.08567,
@@ -19,12 +19,15 @@ class HumanoidEnv(gym.Env):
                  0.740718, 0.379435, 0.48398, 2.11255, 0.932006, 0.397761,
                  2.08567, 1.32645, 2.08567, -0.0349066, 2.08567, 0.314159,
                  2.08567, 1.54462]
-        self.action_space = spaces.Box(low=np.array(lows),
-                                       high=np.array(highs))
-        lows.extend([-10, -10, -10])
-        highs.extend([10, 10, 10])
-        obs_low = np.array(lows)
-        obs_high = np.array(highs)
+
+        lows_hand_train = [-2.08567, -2.08567]
+        highs_hand_train = [2.08567, 2.08567]         
+        self.action_space = spaces.Box(low=np.array(lows_hand_train),
+                                       high=np.array(highs_hand_train))
+        #lows.extend([-10, -10, -10])
+        #highs.extend([10, 10, 10])
+        obs_low = np.array(lows_hand_train)
+        obs_high = np.array(highs_hand_train)
         self.observation_space = spaces.Box(low=obs_low, high=obs_high)
         self.Nao = ut.Utility()
 
@@ -33,8 +36,11 @@ class HumanoidEnv(gym.Env):
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
-        reward = 0
-        self.episode_over = False if self.episode_steps < self.force_motor else True
+        reward = self.get_reward()
+        self.episode_over = False if self.episode_steps < self.episode_length else True
+
+        if(reward == 1):
+            self.episode_over = True
 
         return self.observation, reward, self.episode_over, {}
 
@@ -49,3 +55,13 @@ class HumanoidEnv(gym.Env):
 
     def render(self, mode='human', close=False):
         pass
+
+    def get_reward(self):
+        pi = 3.1415
+        shoulderPitch = (pi / 2) + 1
+        reward = 0
+
+        reward += 1/(shoulderPitch - self.Nao.observation[0])
+        reward += 1/(shoulderPitch - self.Nao.observation[1])
+
+        return reward
