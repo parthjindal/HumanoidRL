@@ -25,22 +25,23 @@ def read_from_pickle(path):
 def test_env():
     """To test the HumanoidEnv (Environment) Class"""
     poses = read_from_pickle(path)[0]
-    Bot = env.HumanoidEnv()
-    Bot.reset()
+    import gym
+    env = gym.make("HumanoidRL-v0")
+    obs = env.reset()
     for configs in poses:
         action = [configs[6], configs[1], configs[10], configs[2], configs[18],
                   configs[12], configs[8], configs[4], configs[5], configs[14],
                   configs[0], configs[11], configs[19], configs[13],
                   configs[9], configs[15], configs[3], configs[7],
                   configs[16], configs[17]]
-    obs, rew, done, w = Bot.step(action)
+        obs, rew, done, w = env.step(action)
 
 
 def test_utility():
     """To test the Utility Class"""
     poses = read_from_pickle(path)[0]
     Bot = ut.Utility()
-    Bot.init_bot(240, 1000)
+    Bot.init_bot(240)
     Bot.get_observation()
     print("Observation:\n", Bot.observation)
     for configs in poses:
@@ -49,10 +50,10 @@ def test_utility():
                   configs[0], configs[11], configs[19], configs[13],
                   configs[9], configs[15], configs[3], configs[7],
                   configs[16], configs[17]]
-    Bot.execute_frame(action)
-    Bot.update_joints()
-    Bot.get_observation()
-    print("Observation:", Bot.observation)
+        Bot.execute_frame(action)
+        Bot.update_joints()
+        Bot.get_observation()
+        print("Observation:", Bot.observation)
 
 
 def main():

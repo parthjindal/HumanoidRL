@@ -56,5 +56,5 @@ pip install -e .
 
 ### Loading models
 
-- Run `python test_result.py --file path_to_directory` to load and run the saved model.
-- BUG: Change the feed_dict input from x[None,:] to x[None,:][0].T in spinup.utils
+- Run `python test_result.py --file <path_to_directory>` to load and run the saved model.
+- BUG: Change the feed_dict input from `x[None,:]` to `x[None,:][0].T` in `spinup.utils`

@@ -1,4 +1,5 @@
 test_walk.py
 walk_positions.pckl
 .vscode
+HumanoidRL.egg-info
 __pycache__
