@@ -1,0 +1,7 @@
+README.md
+setup.py
+HumanoidRL.egg-info/PKG-INFO
+HumanoidRL.egg-info/SOURCES.txt
+HumanoidRL.egg-info/dependency_links.txt
+HumanoidRL.egg-info/requires.txt
+HumanoidRL.egg-info/top_level.txt

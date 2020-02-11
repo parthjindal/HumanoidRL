@@ -113,6 +113,7 @@ class Utility:
         """Getting the joint values"""
         self.update_joints()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
+        return self.observation.T
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():

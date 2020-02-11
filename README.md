@@ -47,8 +47,14 @@ pip install -e .
 
 - `test_script.py` is the testing script for utlity functions and the environment seperately.
 - Use `python test_script --env=True` to test environment.
-- Use python test_script --util=True` to test utilities.
+- Use `python test_script --util=True` to test utilities.
 
 ### Running training
 
 - Run `spinup_run.py`. You need `spinningupai` installed for that.
+
+
+### Loading models
+
+- Run `python test_result.py --file <path_to_directory>` to load and run the saved model.
+- BUG: Change the feed_dict input from `x[None,:]` to `x[None,:][0].T` in `spinup.utils`
