@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument("--cpu", type=int, default=1)
     parser.add_argument('--num_runs', type=int, default=5)
     parser.add_argument('--env_name', type=str, default="HumanoidRL-v0")
-    parser.add_argument('--exp_name', type=str, default='ddpg-custom')
+    parser.add_argument('--exp_name', type=str, default='ppo-custom')
     args = parser.parse_args()
 
     run_experiment(args)

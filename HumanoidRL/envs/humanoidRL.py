@@ -64,9 +64,13 @@ class HumanoidEnv(gym.Env):
         contact_cost = np.clip(contact_cost, min_cost, max_cost)
         return contact_cost
 
-    def get_reward(self):
-        # TODO : Add control cost as in Mujoco
-        forward_reward = 1.25*self.Nao.bodyVel[0][0]
-        healthy_reward = self.healthy_reward()
-        contact_cost = self.contact_cost()
-        return (forward_reward+healthy_reward-contact_cost)
+    # def get_reward(self):
+    #     # TODO : Add control cost as in Mujoco
+    #     forward_reward = 1.25*self.Nao.bodyVel[0][0]
+    #     healthy_reward = self.healthy_reward()
+    #     contact_cost = self.contact_cost()
+    #     return (forward_reward+healthy_reward-contact_cost)
+
+    def get_reward(self) :
+        reward =  -1.0*(1-int(self.is_healthy))
+        return reward
