@@ -1,5 +1,5 @@
 from spinup.utils.run_utils import ExperimentGrid
-from spinup import ppo
+from spinup import ppo_tf1 as ppo
 import gym
 import tensorflow as tf
 

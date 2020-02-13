@@ -55,7 +55,7 @@ class Utility:
         """
         # p.GUI for debug visualizer and p.DIRECT for non graphical version
         # ex. while running on server
-        p.connect(p.GUI)
+        p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")

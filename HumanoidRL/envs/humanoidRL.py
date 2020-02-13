@@ -72,5 +72,5 @@ class HumanoidEnv(gym.Env):
     #     return (forward_reward+healthy_reward-contact_cost)
 
     def get_reward(self) :
-        reward =  -1.0*(1-int(self.is_healthy))
+        reward =  -1.0*(1-int(self.is_healthy()))
         return reward
