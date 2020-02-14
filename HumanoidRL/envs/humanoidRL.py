@@ -2,6 +2,7 @@ from HumanoidRL.envs import Utility as ut
 import gym
 from gym import spaces
 import numpy as np
+import time
 
 
 class HumanoidEnv(gym.Env):
@@ -10,7 +11,7 @@ class HumanoidEnv(gym.Env):
     def __init__(self):
         self.Nao = None
         self.freq = 240
-        self.force_motor = 1000
+        self.force_motor = 10000
         lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
                 -0.397761, -1.14529, -0.79046, -1.53589, -0.0923279,
                 -1.1863, -0.768992, -2.08567, -0.314159, -2.08567,
@@ -54,7 +55,7 @@ class HumanoidEnv(gym.Env):
         return float(self.is_healthy())*5.0
 
     def is_healthy(self):
-        min_z, max_z = 0.5, 1.0
+        min_z, max_z = 0.5, 0.6
         return (min_z < self.Nao.bodyPos[0][2] < max_z)
 
     def contact_cost(self):
@@ -72,5 +73,8 @@ class HumanoidEnv(gym.Env):
     #     return (forward_reward+healthy_reward-contact_cost)
 
     def get_reward(self) :
-        reward =  -1.0*(1-int(self.is_healthy()))
+        velocity_cost = -np.linalg.norm(self.Nao.bodyVel)-np.linalg.norm(self.Nao.bodyAngVel)
+        position_reward =  min(self.Nao.bodyPos[0][2]-0.5,0.6-self.Nao.bodyPos[0][2])
+        fallen_penalty = int(self.Nao.bodyPos[0][2] <= 0.1)*(-2.0)
+        reward = (velocity_cost+position_reward+fallen_penalty)
         return reward

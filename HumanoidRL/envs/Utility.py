@@ -59,6 +59,7 @@ class Utility:
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
+        self.timeStep = 1./freq
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
         self.startPos = [0, 0, .35]
@@ -69,7 +70,6 @@ class Utility:
 
         self.init_joints()
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-        self.timeStep = 1./freq
 
     def reset_bot(self):
 
@@ -95,6 +95,8 @@ class Utility:
                                 targetPosition=-shoulderRoll, force=1000)
         p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
                                 targetPosition=shoulderRoll, force=1000)
+        p.stepSimulation()
+        time.sleep(self.timeStep)           
 
     def execute_frame(self, action):
         """To take an action on the bot
