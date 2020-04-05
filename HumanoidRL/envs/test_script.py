@@ -6,7 +6,7 @@ import Utility as ut
 import pickle
 import argparse
 
-
+"""File containing the sample walk i.e. the joint angles per frame"""
 path = "walk_positions.pckl"
 
 

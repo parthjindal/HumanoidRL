@@ -26,7 +26,9 @@ This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is us
 │   └── __init__.py
 ├── README.md
 ├── setup.py
-└── spinup_run.py
+├── spinup_run.py
+└── test_policy.py
+
 
 ```
 - `baselines` contains the reference items.
