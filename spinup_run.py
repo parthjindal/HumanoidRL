@@ -1,5 +1,5 @@
 from spinup.utils.run_utils import ExperimentGrid
-from spinup import ppo
+from spinup import ppo_tf1
 import gym
 import tensorflow as tf
 
@@ -16,7 +16,7 @@ def run_experiment(args):
     eg.add('save_freq', 20)
     eg.add('max_ep_len', 200)
     eg.add('ac_kwargs:activation', tf.tanh, '')
-    eg.run(ppo)
+    eg.run(ppo_tf1)
 
 if __name__ == '__main__':
     import argparse
