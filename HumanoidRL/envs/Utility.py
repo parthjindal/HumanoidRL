@@ -9,6 +9,7 @@ class Utility:
     '''
     Class containing all the helper functions
     '''
+
     def __init__(self):
         '''
         joinIndex
@@ -36,6 +37,7 @@ class Utility:
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
         }
+        self.feetIndex = [21, 36]
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
@@ -45,6 +47,7 @@ class Utility:
         self.bodyAng = np.zeros((1, 3))
         self.bodyVel = np.zeros((1, 3))
         self.bodyAngVel = np.zeros((1, 3))
+        self.feetCOM = np.zeros((2, 3))
         self.observation = np.empty((len(self.jointIndex)+3, 1))
         self.nao = None
 
@@ -74,10 +77,11 @@ class Utility:
     def reset_bot(self):
 
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-        p.resetBasePositionAndOrientation(self.nao, self.startPos, p.getQuaternionFromEuler([0,0,0]))
+        p.resetBasePositionAndOrientation(
+            self.nao, self.startPos, p.getQuaternionFromEuler([0, 0, 0]))
         self.init_joints()
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-        
+
     def init_joints(self):
         """Initialising the starting joint values"""
         for joint, index in self.jointIndex.items():
@@ -112,8 +116,9 @@ class Utility:
     def get_observation(self):
         """Getting the joint values"""
         self.update_joints()
+        self.update_feet()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
-        return self.observation.T
+        return self.observation
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
@@ -126,6 +131,10 @@ class Utility:
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
+
+    def update_feet(self):
+        temp = p.getLinkStates(self.nao, self.feetIndex)
+        self.feetCOM = np.vstack((temp[0][0], temp[1][0]))
 
     def kill_bot(self):
         """To disconnect from the server"""
