@@ -2,3 +2,4 @@ test_walk.py
 .vscode
 HumanoidRL.egg-info
 __pycache__
+results
