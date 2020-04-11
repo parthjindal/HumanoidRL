@@ -21,8 +21,8 @@ class HumanoidEnv(gym.Env):
                  2.08567, 1.54462]
         self.action_space = spaces.Box(low=np.array(lows),
                                        high=np.array(highs))
-        lows.extend([-10, -10, -10])
-        highs.extend([10, 10, 10])
+        lows.extend([-float('inf'), -float('inf'), 0.28])
+        highs.extend([float('inf'), float('inf'), 0.29])
         obs_low = np.array(lows)
         obs_high = np.array(highs)
         self.observation_space = spaces.Box(low=obs_low, high=obs_high)
@@ -33,7 +33,11 @@ class HumanoidEnv(gym.Env):
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
-        reward = 0
+        reward = self.get_reward(action)
+        if self.Nao.feetCOM[0, 2] > 0.1 and self.Nao.feetCOM[1, 2] > 0.1 and self.Nao.bodyPos[0][2] > 0.1:
+            # jumping condition
+            self.episode_over = True
+            reward = -1
         self.episode_over = False if self.episode_steps < self.force_motor else True
 
         return self.observation, reward, self.episode_over, {}
@@ -49,3 +53,15 @@ class HumanoidEnv(gym.Env):
 
     def render(self, mode='human', close=False):
         pass
+
+    def contact_cost(self):
+        contact_cost = 5e-7*(np.sum(np.square(self.Nao.jointF)) +
+                             np.sum(np.square(self.Nao.jointT)))
+
+        min_cost, max_cost = -np.inf, 10.0
+        contact_cost = np.clip(contact_cost, min_cost, max_cost)
+        return contact_cost
+
+    def get_reward(self, action):
+        uph_cost = (self.Nao.bodyPos[0][2]-self.Nao.feetCOM[:, 2].mean())
+        return uph_cost
