@@ -37,7 +37,7 @@ class Utility:
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
         }
-        self.feetIndex = [21, 36]
+        self.feetIndex = [17, 30]
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
@@ -65,14 +65,15 @@ class Utility:
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 
         self.startPos = [0, 0, .35]
+        self.timeStep = 1./freq
         path = os.path.join(os.path.dirname(
             os.path.realpath(__file__)), "../humanoid/nao.urdf")
         self.nao = p.loadURDF(path, self.startPos,
                               flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
         self.init_joints()
+        self.fall_down
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-        self.timeStep = 1./freq
 
     def reset_bot(self):
 
@@ -80,25 +81,27 @@ class Utility:
         p.resetBasePositionAndOrientation(
             self.nao, self.startPos, p.getQuaternionFromEuler([0, 0, 0]))
         self.init_joints()
+        self.fall_down()
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 
     def init_joints(self):
         """Initialising the starting joint values"""
-        for joint, index in self.jointIndex.items():
-            p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
-                                    targetPosition=0, force=1000)
-            p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
-        shoulderPitch = np.pi / 2.
-        shoulderRoll = 0.1
-        # this makes the arms hang down and not forward
-        p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
-                                targetPosition=-shoulderRoll, force=1000)
-        p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
-                                targetPosition=shoulderRoll, force=1000)
+        for i in range(30):
+            for joint, index in self.jointIndex.items():
+                p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
+                                        targetPosition=0, force=1000)
+                # p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
+            shoulderPitch = np.pi / 2.
+            shoulderRoll = 0.1
+            # this makes the arms hang down and not forward
+            p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
+                                    targetPosition=shoulderPitch, force=1000)
+            p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
+                                    targetPosition=shoulderPitch, force=1000)
+            p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
+                                    targetPosition=-shoulderRoll, force=1000)
+            p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
+                                    targetPosition=shoulderRoll, force=1000)
 
     def execute_frame(self, action):
         """To take an action on the bot
@@ -118,7 +121,7 @@ class Utility:
         self.update_joints()
         self.update_feet()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
-        return self.observation
+        return np.squeeze(self.observation, axis=1)
 
     def update_joints(self):
         for joint, index in self.jointIndex.items():
@@ -139,3 +142,61 @@ class Utility:
     def kill_bot(self):
         """To disconnect from the server"""
         p.disconnect()
+
+    def fall_down(self):
+
+        for i in range(40):
+            p.setJointMotorControl2(
+                self.nao, 39, p.POSITION_CONTROL, targetPosition=-1.5, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 56, p.POSITION_CONTROL, targetPosition=-1.5, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 40, p.POSITION_CONTROL, targetPosition=0.9, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 57, p.POSITION_CONTROL, targetPosition=-0.9, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 42, p.POSITION_CONTROL, targetPosition=-0.8, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 59, p.POSITION_CONTROL, targetPosition=0.8, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 14, p.POSITION_CONTROL, targetPosition=1.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 27, p.POSITION_CONTROL, targetPosition=1.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 13, p.POSITION_CONTROL, targetPosition=-2.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 26, p.POSITION_CONTROL, targetPosition=-2.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 16, p.POSITION_CONTROL, targetPosition=1.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 29, p.POSITION_CONTROL, targetPosition=1.0, force=1000)
+            p.stepSimulation()
+            time.sleep(self.timeStep)
+
+        for i in range(40):
+            p.setJointMotorControl2(
+                self.nao, 39, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 56, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 40, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 57, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 42, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 59, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 14, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 27, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 13, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 26, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 16, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.setJointMotorControl2(
+                self.nao, 29, p.POSITION_CONTROL, targetPosition=0.0, force=1000)
+            p.stepSimulation()
+            time.sleep(self.timeStep)
