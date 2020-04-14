@@ -28,8 +28,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', type=str, default='results')
     parser.add_argument('--epochs', type=int, default=100000)
     parser.add_argument('--steps_per_epoch', type=int, default=10000)
-    parser.add_argument('--max_ep_len', tpe=int, default=200)
-    parser.add_argument('--save_freq', tpe=int, default=20)
+    parser.add_argument('--max_ep_len', type=int, default=200)
+    parser.add_argument('--save_freq', type=int, default=20)
     args = parser.parse_args()
 
     run_experiment(args)

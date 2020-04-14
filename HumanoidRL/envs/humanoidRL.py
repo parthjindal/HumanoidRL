@@ -12,7 +12,7 @@ class HumanoidEnv(gym.Env):
         self.Nao = None
         self.freq = 240
         self.force_motor = 1000
-        self.min_z, self.max_z = 0.26, 0.34
+        self.min_z, self.max_z = 0.25, 0.35
         lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
                 -0.397761, -1.14529, -0.79046, -1.53589, -0.0923279,
                 -1.1863, -0.768992, -2.08567, -0.314159, -2.08567,
@@ -38,6 +38,7 @@ class HumanoidEnv(gym.Env):
         # reward algo
         reward = get_reward(self, prev_ob, "not_fall")
         self.episode_over = False if self.episode_steps < self.force_motor else True
+        """termination in case of falling or jumping"""
         if not(self.min_z < self.Nao.bodyPos[0][2] < self.max_z):
             reward = 0
             self.episode_over = True

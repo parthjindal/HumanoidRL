@@ -82,7 +82,7 @@ class Utility:
 
     def init_joints(self):
         """Initialising the starting joint values"""
-        for i in range(100):
+        for i in range(50):
             for joint, index in self.jointIndex.items():
                 p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
                                         targetPosition=0, force=1000)
