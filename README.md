@@ -25,6 +25,7 @@ This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is us
 │   │   └── nao.urdf
 │   └── __init__.py
 ├── README.md
+├── results
 ├── setup.py
 ├── spinup_run.py
 └── test_policy.py
@@ -34,6 +35,7 @@ This is NAO-V40 training environment based OpenAI Gym standards. Pybullets is us
 - `baselines` contains the reference items.
 - `envs` contains `humanoidRL` script which it the standard Gym environment. `Utility` class contains the basic functions for communicating with the simulator.
 - `humanoid` contains the meshes and basic physics configrations for NAO V40. 
+- `results` default directory for results.
 
 ### Installation of Humanoid Environment
 
@@ -53,10 +55,14 @@ pip install -e .
 
 ### Running training
 
-- Run `spinup_run.py`. You need `spinningupai` installed for that.
+- Run the following command
+``` shell 
+python spinup_run.py --exp_name <exp_name> --cpu <num_cpus> --data_dir <directory to save results> --epochs <epochs> --steps_per_epoch <steps> --max_ep_len  <max len> --save_freq <save freq> 
+``` 
+
+You need `spinningupai` installed for that.
 
 
 ### Loading models
 
-- Run `python test_result.py --file <path_to_directory>` to load and run the saved model.
-- BUG: Change the feed_dict input from `x[None,:]` to `x[None,:][0].T` in `spinup.utils`
+- Run `python test_result.py --plot True/False --run pytorch/tf --file <path_to_directory>` to load and plot and/or run the saved model.
