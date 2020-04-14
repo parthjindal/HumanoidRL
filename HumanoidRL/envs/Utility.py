@@ -9,6 +9,7 @@ class Utility:
     '''
     Class containing all the helper functions
     '''
+
     def __init__(self):
         '''
         joinIndex
@@ -36,6 +37,8 @@ class Utility:
             'RElbowYaw': (58, 18),
             'RElbowRoll': (59, 19)
         }
+        self.feetIndex = [17, 30]
+        self.feetCOM = np.zeros((2, 3))
         self.jointPos = np.zeros((len(self.jointIndex), 1))
         self.jointVel = np.zeros((len(self.jointIndex), 1))
         self.jointF = np.zeros((len(self.jointIndex), 3))
@@ -55,7 +58,7 @@ class Utility:
         """
         # p.GUI for debug visualizer and p.DIRECT for non graphical version
         # ex. while running on server
-        p.connect(p.GUI)
+        p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")
@@ -67,34 +70,37 @@ class Utility:
         self.nao = p.loadURDF(path, self.startPos,
                               flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
+        self.timeStep = 1./freq
         self.init_joints()
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-        self.timeStep = 1./freq
 
     def reset_bot(self):
-
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-        p.resetBasePositionAndOrientation(self.nao, self.startPos, p.getQuaternionFromEuler([0,0,0]))
+        """Resetting the environment"""
+        p.resetBasePositionAndOrientation(
+            self.nao, self.startPos, p.getQuaternionFromEuler([0, 0, 0]))
         self.init_joints()
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-        
+
     def init_joints(self):
         """Initialising the starting joint values"""
-        for joint, index in self.jointIndex.items():
-            p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
-                                    targetPosition=0, force=1000)
-            p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
-        shoulderPitch = np.pi / 2.
-        shoulderRoll = 0.1
-        # this makes the arms hang down and not forward
-        p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
-                                targetPosition=shoulderPitch, force=1000)
-        p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
-                                targetPosition=-shoulderRoll, force=1000)
-        p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
-                                targetPosition=shoulderRoll, force=1000)
+        for i in range(100):
+            for joint, index in self.jointIndex.items():
+                p.setJointMotorControl2(self.nao, index[0], p.POSITION_CONTROL,
+                                        targetPosition=0, force=1000)
+                # p.enableJointForceTorqueSensor(self.nao, index[0], enableSensor=1)
+
+            # Uncomment this to  make the arms hang down and not forward
+            # shoulderPitch = np.pi / 2.
+            # shoulderRoll = 0.1
+            # p.setJointMotorControl2(self.nao, 56, p.POSITION_CONTROL,
+            #                         targetPosition=shoulderPitch, force=1000)
+            # p.setJointMotorControl2(self.nao, 39, p.POSITION_CONTROL,
+            #                         targetPosition=shoulderPitch, force=1000)
+            # p.setJointMotorControl2(self.nao, 57, p.POSITION_CONTROL,
+            #                         targetPosition=-shoulderRoll, force=1000)
+            # p.setJointMotorControl2(self.nao, 40, p.POSITION_CONTROL,
+            #                         targetPosition=shoulderRoll, force=1000)
+            p.stepSimulation()
+            time.sleep(self.timeStep)
 
     def execute_frame(self, action):
         """To take an action on the bot
@@ -112,10 +118,12 @@ class Utility:
     def get_observation(self):
         """Getting the joint values"""
         self.update_joints()
+        self.update_feet()
         self.observation[:, :] = np.vstack((self.jointPos, self.bodyPos.T))
-        return self.observation.T
+        return np.squeeze(self.observation, axis=1)
 
     def update_joints(self):
+        """Updating the joint values"""
         for joint, index in self.jointIndex.items():
             temp = p.getJointState(self.nao, index[0])
             self.jointPos[index[1], :] = temp[0]
@@ -126,6 +134,11 @@ class Utility:
         self.bodyPos[:, :], temp = p.getBasePositionAndOrientation(self.nao)
         self.bodyAng[:, :] = p.getEulerFromQuaternion(temp)
         self.bodyVel[:, :], self.bodyAngVel[:, :] = p.getBaseVelocity(self.nao)
+
+    def update_feet(self):
+        """Updating the feet COM values"""
+        temp = p.getLinkStates(self.nao, self.feetIndex)
+        self.feetCOM = np.vstack((temp[0][0], temp[1][0]))
 
     def kill_bot(self):
         """To disconnect from the server"""
