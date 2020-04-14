@@ -1,4 +1,5 @@
 from HumanoidRL.envs import Utility as ut
+from HumanoidRL.envs.rewards import *
 import gym
 from gym import spaces
 import numpy as np
@@ -11,6 +12,7 @@ class HumanoidEnv(gym.Env):
         self.Nao = None
         self.freq = 240
         self.force_motor = 1000
+        self.min_z, self.max_z = 0.26, 0.34
         lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
                 -0.397761, -1.14529, -0.79046, -1.53589, -0.0923279,
                 -1.1863, -0.768992, -2.08567, -0.314159, -2.08567,
@@ -21,21 +23,24 @@ class HumanoidEnv(gym.Env):
                  2.08567, 1.54462]
         self.action_space = spaces.Box(low=np.array(lows),
                                        high=np.array(highs))
-        lows.extend([-10, -10, -10])
-        highs.extend([10, 10, 10])
+        lows.extend([-1e6, -1e6, self.min_z])
+        highs.extend([1e6, 1e6, self.max_z])
         obs_low = np.array(lows)
         obs_high = np.array(highs)
         self.observation_space = spaces.Box(low=obs_low, high=obs_high)
         self.Nao = ut.Utility()
 
     def step(self, action):
+        prev_ob = self.observation
         self.Nao.execute_frame(action)
         self.observation = self.Nao.get_observation()
         self.episode_steps += 1
         # reward algo
-        reward = 0
+        reward = get_reward(self, prev_ob, "not_fall")
         self.episode_over = False if self.episode_steps < self.force_motor else True
-
+        if not(self.min_z < self.Nao.bodyPos[0][2] < self.max_z):
+            reward = 0
+            self.episode_over = True
         return self.observation, reward, self.episode_over, {}
 
     def reset(self):
@@ -45,7 +50,8 @@ class HumanoidEnv(gym.Env):
         self.Nao.reset_bot()
         self.episode_over = False
         self.episode_steps = 0
-        return self.Nao.get_observation()
+        self.observation = self.Nao.get_observation()
+        return self.observation
 
     def render(self, mode='human', close=False):
         pass
