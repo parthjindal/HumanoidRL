@@ -40,7 +40,7 @@ class HumanoidEnv(gym.Env):
         self.episode_over = False if self.episode_steps < self.force_motor else True
         """termination in case of falling or jumping"""
         if not(self.min_z < self.Nao.bodyPos[0][2] < self.max_z):
-            reward = 0
+            reward = -10.0
             self.episode_over = True
         return self.observation, reward, self.episode_over, {}
 

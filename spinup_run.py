@@ -10,12 +10,18 @@ def run_experiment(args):
 
     eg = ExperimentGrid(name=args.exp_name)
     eg.add('env_fn', env_fn)
-    eg.add('seed', [i for i in range(args.num_runs)])
+    eg.add('seed', [10*i for i in range(args.num_runs)])
     eg.add('epochs', args.epochs)
-    eg.add('steps_per_epoch', args.steps_per_epoch)
+    eg.add('steps_per_epoch', 4096)# args.steps_per_epoch)
     eg.add('save_freq', args.save_freq)
-    eg.add('max_ep_len', args.max_ep_len)
+    eg.add('max_ep_len', 400 )#args.max_ep_len)
     eg.add('ac_kwargs:activation', torch.nn.Tanh, '')
+    eg.add('clip_ratio', 0.1)
+    eg.add('lam', 0.95)
+    eg.add('pi_lr', 0.0001)
+    eg.add('vf_lr', 0.0001)
+    eg.add('train_pi_iters', 10)
+    eg.add('train_v_iters', 10)
     eg.run(ppo_pytorch, data_dir=args.data_dir, num_cpu=args.cpu)
 
 if __name__ == '__main__':
