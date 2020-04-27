@@ -51,14 +51,17 @@ class Utility:
         self.observation = np.empty((len(self.jointIndex)+3, 1))
         self.nao = None
 
-    def init_bot(self, freq):
+    def init_bot(self, freq, render):
         """Initialising the paramters of bot and simulation
         INPUT_VARIABLES
             freq : freq of the simlulation should be arounf 50-100
         """
         # p.GUI for debug visualizer and p.DIRECT for non graphical version
         # ex. while running on server
-        p.connect(p.DIRECT)
+        if render:
+            p.connect(p.GUI)
+        else:
+            p.connect(p.DIRECT)
         p.setGravity(0, 0, -9.81)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.loadURDF("plane.urdf")

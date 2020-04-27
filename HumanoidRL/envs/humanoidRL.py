@@ -8,9 +8,10 @@ import numpy as np
 class HumanoidEnv(gym.Env):
     """Humanoid RL Environment for simulation of a NAO-V40"""
 
-    def __init__(self):
+    def __init__(self, render=False):
         self.Nao = None
         self.freq = 240
+        self.render = render
         self.force_motor = 1000
         self.min_z, self.max_z = 0.25, 0.35
         lows = [-1.14529, -0.379435, -1.53589, -0.0923279, -1.18944,
@@ -46,7 +47,7 @@ class HumanoidEnv(gym.Env):
 
     def reset(self):
         if self.Nao.nao is None:
-            self.Nao.init_bot(self.freq)
+            self.Nao.init_bot(self.freq, self.render)
         # self.Nao.init_joints()
         self.Nao.reset_bot()
         self.episode_over = False

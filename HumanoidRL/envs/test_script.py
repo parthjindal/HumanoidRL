@@ -1,7 +1,7 @@
 
 # Script to check the working of other modules
 
-import humanoidRL as env
+# import humanoidRL as env
 import Utility as ut
 import pickle
 import argparse
@@ -22,11 +22,11 @@ def read_from_pickle(path):
     return poses
 
 
-def test_env():
+def test_env(render):
     """To test the HumanoidEnv (Environment) Class"""
     poses = read_from_pickle(path)[0]
     import gym
-    env = gym.make("HumanoidRL-v0")
+    env = gym.make("HumanoidRL-v0", render=render)
     obs = env.reset()
     for configs in poses:
         action = [configs[6], configs[1], configs[10], configs[2], configs[18],
@@ -37,11 +37,11 @@ def test_env():
         obs, rew, done, w = env.step(action)
 
 
-def test_utility():
+def test_utility(render):
     """To test the Utility Class"""
     poses = read_from_pickle(path)[0]
     Bot = ut.Utility()
-    Bot.init_bot(240)
+    Bot.init_bot(240, render=render)
     Bot.get_observation()
     print("Observation:\n", Bot.observation)
     for configs in poses:
@@ -73,14 +73,20 @@ def main():
         default=False,
         help="set True to test the Utility Class"
     )
+    parser.add_argument(
+        "--render",
+        type=bool,
+        default=False,
+        help="set True to run render humanoid"
+    )
     args = parser.parse_args()
     if (args.env and args.util):
         print("Cannot test both envionment and "
               "Utility at once")
     if args.env:
-        test_env()
+        test_env(args.render)
     elif args.util:
-        test_utility()
+        test_utility(args.render)
     else:
         print("No flag given try -h for help")
 

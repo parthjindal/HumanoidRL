@@ -6,7 +6,7 @@ import torch
 def run_experiment(args):
     def env_fn():
         import HumanoidRL
-        return gym.make(args.env_name)
+        return gym.make(args.env_name, render=args.render)
 
     eg = ExperimentGrid(name=args.exp_name)
     eg.add('env_fn', env_fn)
@@ -26,10 +26,11 @@ if __name__ == '__main__':
     parser.add_argument('--env_name', type=str, default="HumanoidRL-v0")
     parser.add_argument('--exp_name', type=str, default='ddpg-custom')
     parser.add_argument('--data_dir', type=str, default='results')
-    parser.add_argument('--epochs', type=int, default=100000)
-    parser.add_argument('--steps_per_epoch', type=int, default=10000)
-    parser.add_argument('--max_ep_len', type=int, default=200)
+    parser.add_argument('--epochs', type=int, default=50)
+    parser.add_argument('--steps_per_epoch', type=int, default=4000)
+    parser.add_argument('--max_ep_len', type=int, default=1000)
     parser.add_argument('--save_freq', type=int, default=20)
+    parser.add_argument('--render', type=bool, default=False)
     args = parser.parse_args()
 
     run_experiment(args)
