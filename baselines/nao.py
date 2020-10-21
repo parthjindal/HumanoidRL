@@ -1,7 +1,7 @@
 import pybullet as p
 import pybullet_data
 import time
-
+import math
 # in order to run this, you need to pip/conda install pybullet
 
 # There are 2 ways of running PyBullet - with a debug visualizer (slower but easy to debug) and headless.
@@ -22,7 +22,7 @@ p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
 #flags can also use p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS
 #don't use URDF_USE_SELF_COLLISION, since some connected body parts overlap
 nao = p.loadURDF(
-    "humanoid/nao.urdf",
+    "../HumanoidRL/humanoid/nao.urdf",
     startPos,
     flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT)
 
@@ -60,7 +60,7 @@ p.setJointMotorControl2(
     nao, 40, p.POSITION_CONTROL, targetPosition=shoulderRoll, force=1000)
 
 # this can be anywhere in the file
-p.setGravity(0, 0, -10)
+p.setGravity(0, 0, -9.8)
 
 # set the simulator frequency to 240Hz. In practice that's a lot. I'd go higher than 50Hz (stability) and probably around 100Hz (good accuracy-speed tradeoff)
 timeStep = 1. / 240.
@@ -68,11 +68,11 @@ p.setTimeStep(timeStep)
 
 
 # add motors that you wanna actuate to this list. You find them by looking at the terminal output from line 38-39
-motors = [1, 2, 13, 14, 15, 16, 17, 18]
+motors = [1, 2, 13, 14, 15, 16, 17, 18,26,27,28,29,30,31]
 debugParams = []
 # motors = [3, 4, 6, 8, 10, 14]
 
-import math
+
 
 # make it so that  for each one of the motors we add a slider to we can test each motor
 for i in range(len(motors)):
@@ -86,5 +86,4 @@ while (1):
         p.setJointMotorControl2(
             nao, motors[j], p.POSITION_CONTROL, targetPosition=pos)
     p.stepSimulation()
-
     time.sleep(timeStep)
